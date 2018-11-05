@@ -19,6 +19,7 @@
   "dependencies": {
     "express": "^4.16.4",
     "passport-spotify": "^1.0.1",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "spotify-web-api-node": "^4.0.0"
   }
 }
