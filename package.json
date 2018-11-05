@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/stylate/Colors#readme",
   "dependencies": {
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.3",
     "express": "^4.16.4",
     "passport-spotify": "^1.0.1",
     "request": "^2.88.0"
