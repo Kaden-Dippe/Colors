@@ -13,7 +13,20 @@ var spotifyApi = new SpotifyWebApi({
 });
 
 
-
+async function spotify_auth() {
+  try {
+    var data = await spotifyApi.clientCredentialsGrant();
+    console.log(data.body['expires_in'])
+  } catch(err) {
+    console.log(err);
+  }
+  try { 
+    await spotifyApi.setAccessToken(data.body['access_token']);
+  } catch(err) {
+    console.log(err);
+  }
+}
+/*
 // Retrieve an access token.
 spotifyApi.clientCredentialsGrant().then(
   function(data) {
@@ -25,28 +38,17 @@ spotifyApi.clientCredentialsGrant().then(
     //will get user input from a textbox
     var UserInput = "Drake";
     //dictionary of artists to Id
-    var nameToId = {};
-
-    searchForArtist(UserInput, nameToId)
-
-
-      
-    
-
-    
-
-
+    var nameToId = searchForArtist(UserInput, nameToId);
   },
   function(err) {
     console.log('Something went wrong when retrieving an access token', err);
   }
 );
+*/
+spotify_auth();
 
 
-
-/***Search for an artist based on current search, and then return artists that result
-Create a dictionar mapping artist ***/
-function searchForArtist(name, nameToId) {
+async function searchForArtist(name, spotifyApi) {
     spotifyApi.searchArtists(name).then(function(data) {
         data.body.artists.items.forEach(function(element) {
           nameToId[element.name] = element.id
@@ -60,6 +62,10 @@ function searchForArtist(name, nameToId) {
         return nameToId;
       });
 }
+
+
+
+
 
 
 
