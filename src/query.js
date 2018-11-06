@@ -1,4 +1,6 @@
 var request = require('request')
+var key = require('./key.js');
+var SpotifyWebApi = require('spotify-web-api-node');
 
 /*
  *  After receiving authentication from Spotify, perform a series of requests of the following:
@@ -15,5 +17,59 @@ var request = require('request')
  *
  */
 
+/*** The functions that will be called by app.js ***/
 
+
+/*** Search for an artist by name ***/
+
+/*** Once user verifies artist, search get songs based on that artists spotify Id
+
+
+
+
+/**Returns spotiyApi object to make api calls***/
+async function spotify_auth() {
+  
+  var spotifyApi = new SpotifyWebApi({
+  clientId: key.client_id,
+  clientSecret: key.client_secret,
+  });
+
+  try {
+    var data = await spotifyApi.clientCredentialsGrant();
+    console.log(data.body['expires_in'])
+  } catch(err) {
+    console.log(err);
+  }
+  try { 
+    await spotifyApi.setAccessToken(data.body['access_token']);
+  } catch(err) {
+    console.log(err);
+  }
+  return spotifyApi;
+}
+
+async function searchForArtist(name, spotifyApi) {
+  var nameToId = {};
+  try { 
+    var data = await spotifyApi.searchArtists(name);
+  } catch(err) {
+    console.log(err);
+  }
+
+  data.body.artists.items.forEach(function(element) {
+    nameToId[element.name] = element.id
+    //console.log(element.name);
+    });
+  return nameToId;
+}
+
+async function actions() {
+  spotifyApi = await spotify_auth();
+  var nameToId = await searchForArtist("Drake", spotifyApi);
+  //console.log(Object.keys(nameToId));
+}
+
+
+actions();
 
