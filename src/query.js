@@ -20,9 +20,10 @@ async function searchByName(name) {
 }
 
 /** 
-* 
-* @param {String} id The Spotify id of the Artist
-* 
+* Catagorize an artist's discography into colors
+*
+*@param {String} id | The Spotify id of the Artist
+*@return {Dictionary} colors| Dictionary that maps each song to a color
 */
 async function getSongsAndColors(id) {
   
@@ -30,8 +31,7 @@ async function getSongsAndColors(id) {
   var albums = await getAlbums(id, spotifyApi);
   var songFeatures = await getSongFeatures(albums, spotifyApi);
   var colors = classify(songFeatures);
-  console.log(colors);
-
+  return colors
 }
 
 
@@ -39,9 +39,9 @@ async function getSongsAndColors(id) {
 /**THESE ARE HELPER FUNCTIONS*/
 
 /**
-* Get a spotify API token to make spotify API calls
+* Creates a spotify API token to make spotify API calls
 * 
-* @return {Spotify API Object} spotifyApi Spotify API object to make API calls
+* @return {Spotify API Object} spotifyApi | Spotify API object to make API calls
 */
 
 async function spotify_auth() {
@@ -52,7 +52,6 @@ async function spotify_auth() {
 
   try {
     var data = await spotifyApi.clientCredentialsGrant();
-    //console.log(data.body['expires_in'])
   } catch(err) {
     console.log(err);
   }
@@ -66,12 +65,11 @@ async function spotify_auth() {
 
 
 /** 
-* Create a Dictionary from searching for Artists. 
-* Dictionary of names => SpotifyIds.
+* Create a Dictionary that contains Artists that match the closest to "name".
 * 
-* @param {String} name Artists name to search for 
-* @param {Spotify API Object} spotifyApi Spotify API object to make API calls
-* @return {Dictionary} nameToId Dictionary containing results of search. Key: name, Value: SpotifyId
+* @param {String} name | Artists name to search for 
+* @param {Spotify API Object} spotifyApi | Spotify API object to make API calls
+* @return {Dictionary} nameToId | Dictionary containing results of search. Key: name, Value: SpotifyId
 */
 async function searchForArtist(name, spotifyApi) {
   var nameToId = {};
@@ -86,7 +84,12 @@ async function searchForArtist(name, spotifyApi) {
   return nameToId;
 }
 
-
+/** 
+* Retrieve an artist's albums.
+*
+*@param {String} id | The Spotify id of the Artist
+*@return {Array} albums| List of the spotify id's of each album
+*/
 async function getAlbums(id, spotifyApi) {
   var albums = [];
   try { 
@@ -102,8 +105,12 @@ async function getAlbums(id, spotifyApi) {
   return albums;
 }
 
-
-
+/** 
+* Retrieves the audio features of every song in an artist's discography.
+*
+*@param {String} albums | list of the spotify id's of each album
+*@return {Dictionary} songFeatures| Dictionary that maps the name of each song to its audio features
+*/
 async function getSongFeatures(albums, spotifyApi) {
   var songFeatures = {};
   var songs = []
@@ -111,7 +118,7 @@ async function getSongFeatures(albums, spotifyApi) {
   try { 
     let data = await spotifyApi.getAlbums(albums);
     data.body.albums.forEach(function(album) {
-      if (counter < 100 ) {
+      if (counter < 100) {
         album.tracks.items.some(function(song) {
           songs.push(song.id);
           songFeatures[song.id] = song.name;
@@ -146,7 +153,11 @@ async function getSongFeatures(albums, spotifyApi) {
 /** COLOR PROCESSING*/
 
 
-/** creates initial color dictionaries */
+/** 
+*Initializes the color dictionary
+*
+*@return {Dictionary} colors| Dictionary with a key corresponding to each color. 
+*/
 function init() {
     var color_key = ['red', 'orange', 'yellow', 'green', 'blue', 'pink', 'white'];
     var colors = {};
@@ -174,14 +185,15 @@ function withinConstraint(song, color) {
     return true;
 }
 
-/*
- * Classifies a song with a color C depending on
- * the song's features.
- */
-function classify(songFeatures, colors) {
+/** 
+* Classifies each song by color based on its audio features
+*
+*@param {Dictionary} songFeatures | Dicionary that maps a song's name to its corresponding audio features
+*@return {Dictionary} colors| Dictionary that maps each color to the songs that correspond to that color
+*/
+function classify(songFeatures) {
 
   var colors = init()
-  
   Object.keys(songFeatures).forEach(function(song) {
     if (withinConstraint(songFeatures[song], constraints.redConditions)) {
         colors['red'].push(song);
@@ -205,5 +217,5 @@ function classify(songFeatures, colors) {
 }
 
 //searchByName("21 Savage");
-getSongsAndColors('1URnnhqYAYcrqrcwql10ft');
+//getSongsAndColors('1URnnhqYAYcrqrcwql10ft');
 
